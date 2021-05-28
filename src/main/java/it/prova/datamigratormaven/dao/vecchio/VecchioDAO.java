@@ -1,10 +1,13 @@
 package it.prova.datamigratormaven.dao.vecchio;
 
 import it.prova.datamigratormaven.dao.AbstractMySQLDAO;
+import it.prova.datamigratormaven.model.Vecchio;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VecchioDAO extends AbstractMySQLDAO {
 
@@ -14,7 +17,7 @@ public class VecchioDAO extends AbstractMySQLDAO {
     }
 
 
-    public ResultSet oldDataInterrogation() throws Exception {
+    public List<Vecchio> oldDataInterrogation() throws Exception {
         // prima di tutto cerchiamo di capire se possiamo effettuare le operazioni
         if (isNotActive())
             throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
@@ -26,16 +29,30 @@ public class VecchioDAO extends AbstractMySQLDAO {
                 "left join sinistri s ON s.id_anagrafica=a.id\n" +
                 "group by d.id;";
 
-        try (Statement ps = connection.createStatement()) {
+        List<Vecchio> lista=new ArrayList<>();
 
-            ResultSet rs = ps.executeQuery(query);
-            return rs;
+        try (Statement ps = connection.createStatement(); ResultSet rs = ps.executeQuery(query)) {
+
+            while (rs.next()) {
+                Vecchio vecchio= new Vecchio();
+                vecchio.setId(rs.getLong("id"));
+                vecchio.setNome(rs.getString("nome"));
+                vecchio.setCognome(rs.getString("cognome"));
+                vecchio.setCodiceFiscale(rs.getString("codice_fiscale"));
+                vecchio.setData(rs.getDate("data"));
+                vecchio.setNumeroSinistri(rs.getInt("numero_sinistri"));
+
+                lista.add(vecchio);
+
+            }
 
 
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
+
+        return lista;
 
     }
 }

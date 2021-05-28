@@ -53,8 +53,8 @@ public class NuovoDAO extends AbstractMySQLDAO {
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO not_processed (codice_fiscale,old_id) VALUES (?, ?);")) {
 
-            ps.setString(3, input.getCodiceFiscale());
-            ps.setLong(5, input.getOldId());
+            ps.setString(1, input.getCodiceFiscale());
+            ps.setLong(2, input.getOldId());
             result = ps.executeUpdate();
 
         } catch (Exception e) {
